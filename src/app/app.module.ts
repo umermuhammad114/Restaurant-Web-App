@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing/app-routing.module';
@@ -34,6 +35,8 @@ import { PromotionService } from './services/promotion.service';
 import { LeaderService } from './services/leader.service';
 import { LoginComponent } from './login/login.component';
 
+import { baseURL } from './shared/baseurl';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -48,6 +51,7 @@ import { LoginComponent } from './login/login.component';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
@@ -70,7 +74,8 @@ import { LoginComponent } from './login/login.component';
   providers: [
     DishService,
     PromotionService, 
-    LeaderService
+    LeaderService,
+    {provide: 'BaseURL', useValue: baseURL}
   ],
   entryComponents:[
     LoginComponent

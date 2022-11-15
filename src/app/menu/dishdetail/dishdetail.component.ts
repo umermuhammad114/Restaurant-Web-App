@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, Input, OnInit, ViewChild } from '@angular/core';
 import { Dish } from '../../shared/dish';
 import { Comment } from '../../shared/comment';
 import { DishService } from '../../services/dish.service';
@@ -36,7 +36,8 @@ export class DishdetailComponent implements OnInit {
   constructor(private dishService: DishService,
     private route: ActivatedRoute,
     private location: Location,
-    private fb: FormBuilder) {
+    private fb: FormBuilder,
+    @Inject('BaseURL') public baseURL) {
       
     this.CreateForm();
     
@@ -45,7 +46,7 @@ export class DishdetailComponent implements OnInit {
   ngOnInit(): void {
     let id = this.route.snapshot.params["id"];
     this.dishService.getDish(id)
-    .then((dish) => this.dish = dish);
+    .subscribe((dish) => this.dish = dish);
   }
 
   goBack(): void {
