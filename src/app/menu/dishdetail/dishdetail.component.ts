@@ -13,9 +13,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class DishdetailComponent implements OnInit {
  
-  dish: Dish;
+  dish: Dish | any;
   commentForm: FormGroup;
   comment: Comment;
+  dishcopy?: Dish | any;
+  errMess: string;
   @ViewChild('comform') commentFormDirective: any;
 
   formErrors = {
@@ -44,9 +46,13 @@ export class DishdetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     let id = this.route.snapshot.params["id"];
     this.dishService.getDish(id)
-    .subscribe((dish) => this.dish = dish);
+    .subscribe( {
+      next: dish => { this.dish = dish; this.dishcopy = dish; },
+      error: errmess => this.errMess = <any>errmess
+    });
   }
 
   goBack(): void {
@@ -70,6 +76,12 @@ export class DishdetailComponent implements OnInit {
     this.comment = this.commentForm.value;
     this.comment.date = new Date().toISOString();
     this.dish.comments.push(this.comment);
+      this.dishService.putDish(this.dishcopy)
+      .subscribe({
+        next: dish => { this.dish = dish; this.dishcopy = dish; },
+        error:   errmess => { this.dish = null; this.dishcopy = null; this.errMess = <any>errmess; }
+      });
+      
     this.commentFormDirective.resetForm({
       author: '',
       rating: 5,
