@@ -2,14 +2,19 @@ import { Component, Inject, Input, OnInit, ViewChild } from '@angular/core';
 import { Dish } from '../../shared/dish';
 import { Comment } from '../../shared/comment';
 import { DishService } from '../../services/dish.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { expand, switchMap } from 'rxjs/operators';
+import { visibility } from '../../animations/app.animation';
 
 @Component({
   selector: 'app-dishdetail',
   templateUrl: './dishdetail.component.html',
-  styleUrls: ['./dishdetail.component.scss']
+  styleUrls: ['./dishdetail.component.scss'],
+  animations: [
+    visibility()
+  ]
 })
 export class DishdetailComponent implements OnInit {
  
@@ -18,6 +23,11 @@ export class DishdetailComponent implements OnInit {
   comment: Comment;
   dishcopy?: Dish | any;
   errMess: string;
+  dishIds: string[];
+  prev: string;
+  next: string;
+
+  visibility = 'shown';
   @ViewChild('comform') commentFormDirective: any;
 
   formErrors = {
@@ -47,12 +57,18 @@ export class DishdetailComponent implements OnInit {
 
   ngOnInit(): void {
 
-    let id = this.route.snapshot.params["id"];
-    this.dishService.getDish(id)
+    // let id = this.route.snapshot.params["id"];
+    this.route.params.pipe(switchMap((params: Params) => { this.visibility = 'hidden'; return this.dishService.getDish(+params['id']); }))
     .subscribe( {
-      next: dish => { this.dish = dish; this.dishcopy = dish; },
+      next: dish => {  this.dish = dish; this.dishcopy = dish; this.setPrevNext(dish.id); this.visibility = 'shown'; },
       error: errmess => this.errMess = <any>errmess
     });
+  }
+
+  setPrevNext(dishId: string) {
+    const index = this.dishIds.indexOf(dishId);
+    this.prev = this.dishIds[(this.dishIds.length + index - 1) % this.dishIds.length];
+    this.next = this.dishIds[(this.dishIds.length + index + 1) % this.dishIds.length];
   }
 
   goBack(): void {
